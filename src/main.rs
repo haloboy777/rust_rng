@@ -14,20 +14,16 @@ struct Args {
     number_of_items: u32,
 
     /// Filename to write the numbers to
-    #[arg(short = 'f', long, default_value_t = String::from("random_numbers"))]
-    filename: String,
+    #[arg(short = 'o', long = "out")]
+    filename: Option<String>,
 
     /// Starting point in range
     #[arg(short = 's', long, default_value_t = 1)]
-    start: u32,
+    start: isize,
 
     /// Ending point in range (included)
     #[arg(short = 'e', long, default_value_t = 100)]
-    end: u32,
-
-    /// Print to stdout
-    #[arg(short = 'o', long, default_value_t = false)]
-    stdout: bool,
+    end: isize,
 }
 
 fn main() -> Result<()> {
@@ -36,7 +32,6 @@ fn main() -> Result<()> {
     let start = args.start;
     let end = args.end;
     let number_of_items = args.number_of_items;
-    let sout = args.stdout;
 
     ensure!(
         start < end,
@@ -46,19 +41,20 @@ fn main() -> Result<()> {
     );
 
     let mut rng = rand::thread_rng();
-    if sout {
-        let mut lock = stdout().lock();
-        for _ in 1..=number_of_items {
-            let x: u32 = rng.gen_range(start..=end);
-            // println!("{}", x);
-            writeln!(lock, "{x}").expect("unable to write");
-        }
-    } else {
-        let f = File::create(filename).expect("unable to create file");
+    if filename.is_some() {
+        let f = File::create(filename.unwrap_or("random_number".into()))
+            .expect("unable to create file");
         let mut f = BufWriter::new(f);
         for _ in 1..=number_of_items {
-            let x: u32 = rng.gen_range(start..=end);
+            let x: isize = rng.gen_range(start..=end);
             writeln!(f, "{x}").expect("unable to write");
+        }
+    } else {
+        let mut lock = stdout().lock();
+        for _ in 1..=number_of_items {
+            let x: isize = rng.gen_range(start..=end);
+            // println!("{}", x);
+            writeln!(lock, "{x}").expect("unable to write");
         }
     }
     Ok(())
