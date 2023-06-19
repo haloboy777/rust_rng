@@ -5,7 +5,7 @@ use std::io::{stdout, BufWriter, Write};
 
 use clap::Parser;
 
-/// Simple program to generate a file full of random numbers
+/// Simple program to generate random numbers
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
